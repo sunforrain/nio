@@ -14,11 +14,11 @@ import org.junit.Test;
  *
  * Channel 负责传输，Buffer 负责存储
  *
- *
+ *	视频2. 尚硅谷_NIO_缓冲区(Buffer)的数据存取
  * 一、缓冲区（Buffer）：在 Java NIO 中负责数据的存取。缓冲区就是数组。用于存储不同数据类型的数据
  * 
  * 根据数据类型不同（boolean 除外），提供了相应类型的缓冲区：
- * ByteBuffer
+ * ByteBuffer(最常用)
  * CharBuffer
  * ShortBuffer
  * IntBuffer
@@ -79,23 +79,24 @@ public class TestBuffer {
 		
 		//reset() : 恢复到 mark 的位置
 		buf.reset();
-		System.out.println(buf.position());
+		System.out.println("reset位置: "+buf.position());
 		
-		//判断缓冲区中是否还有剩余数据
+		//hasRemaining(): 判断缓冲区中是否还有剩余数据
 		if(buf.hasRemaining()){
 			
 			//获取缓冲区中可以操作的数量
 			System.out.println(buf.remaining());
 		}
 	}
-	
+
+	// Buffer 的常用方法
 	@Test
 	public void test1(){
 		String str = "abcde";
 		
 		//1. 分配一个指定大小的缓冲区
 		ByteBuffer buf = ByteBuffer.allocate(1024);
-		
+		// 打印三个缓冲区的关键属性
 		System.out.println("-----------------allocate()----------------");
 		System.out.println(buf.position());
 		System.out.println(buf.limit());
@@ -106,28 +107,30 @@ public class TestBuffer {
 		
 		System.out.println("-----------------put()----------------");
 		System.out.println(buf.position());
-		System.out.println(buf.limit());
+		System.out.println(buf.limit()); // 存入后limit会改变
 		System.out.println(buf.capacity());
 		
 		//3. 切换读取数据模式
 		buf.flip();
 		
 		System.out.println("-----------------flip()----------------");
-		System.out.println(buf.position());
+		System.out.println(buf.position()); // 切换读后position会回到起始位置准备读取
 		System.out.println(buf.limit());
 		System.out.println(buf.capacity());
 		
 		//4. 利用 get() 读取缓冲区中的数据
+		// 创建一个byte数组, 长度以缓冲区的limit为准
 		byte[] dst = new byte[buf.limit()];
+		// get(byte[] dst) 有好几个重载方法, 这里是将缓冲区中的数据直接读到 dst 中
 		buf.get(dst);
 		System.out.println(new String(dst, 0, dst.length));
 		
 		System.out.println("-----------------get()----------------");
-		System.out.println(buf.position());
+		System.out.println(buf.position());// 读取后position会来到limit的位置
 		System.out.println(buf.limit());
 		System.out.println(buf.capacity());
 		
-		//5. rewind() : 可重复读
+		//5. rewind() : 可重复读, 读完position再回到起始位置
 		buf.rewind();
 		
 		System.out.println("-----------------rewind()----------------");
@@ -135,7 +138,7 @@ public class TestBuffer {
 		System.out.println(buf.limit());
 		System.out.println(buf.capacity());
 		
-		//6. clear() : 清空缓冲区. 但是缓冲区中的数据依然存在，但是处于“被遗忘”状态
+		//6. clear() : 清空缓冲区. 回到最初状态, 但是缓冲区中的数据依然存在，但是处于“被遗忘”状态, 只是等着被覆盖
 		buf.clear();
 		
 		System.out.println("-----------------clear()----------------");
@@ -143,7 +146,7 @@ public class TestBuffer {
 		System.out.println(buf.limit());
 		System.out.println(buf.capacity());
 		
-		System.out.println((char)buf.get());
+		System.out.println((char)buf.get()); // 这里get一个字节, 仍然是有的
 		
 	}
 
