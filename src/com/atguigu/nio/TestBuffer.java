@@ -40,7 +40,8 @@ import org.junit.Test;
  * mark : 标记，表示记录当前 position 的位置。可以通过 reset() 恢复到 mark 的位置
  * 
  * 0 <= mark <= position <= limit <= capacity
- * 
+ *
+ * 视频4. 尚硅谷_NIO_直接缓冲区与非直接缓冲区
  * 四、直接缓冲区与非直接缓冲区：
  * 非直接缓冲区：通过 allocate() 方法分配缓冲区，将缓冲区建立在 JVM 的内存中
  * 直接缓冲区：通过 allocateDirect() 方法分配直接缓冲区，将缓冲区建立在物理内存中。可以提高效率
@@ -51,7 +52,7 @@ public class TestBuffer {
 	public void test3(){
 		//分配直接缓冲区
 		ByteBuffer buf = ByteBuffer.allocateDirect(1024);
-		
+		// isDirect可以判断是否是直接缓冲区
 		System.out.println(buf.isDirect());
 	}
 	

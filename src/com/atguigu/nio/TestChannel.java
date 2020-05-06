@@ -21,15 +21,18 @@ import java.util.Set;
 
 import org.junit.Test;
 
-/*
- * 一、通道（Channel）：用于源节点与目标节点的连接。在 Java NIO 中负责缓冲区中数据的传输。Channel 本身不存储数据，因此需要配合缓冲区进行传输。
+/**
+ *	视频5. 尚硅谷_NIO_通道(Channel)的原理与获取
+ *	视频6. 尚硅谷_NIO_通道的数据传输与内存映射文件
+ * 一、通道（Channel）：用于源节点与目标节点的连接。在 Java NIO 中负责缓冲区中数据的传输。
+ * 	Channel 本身不存储数据，因此需要配合缓冲区进行传输。
  * 
  * 二、通道的主要实现类
  * 	java.nio.channels.Channel 接口：
- * 		|--FileChannel
- * 		|--SocketChannel
- * 		|--ServerSocketChannel
- * 		|--DatagramChannel
+ * 		|--FileChannel (本地)
+ * 		|--SocketChannel (网络)
+ * 		|--ServerSocketChannel (网络)
+ * 		|--DatagramChannel (网络)
  * 
  * 三、获取通道
  * 1. Java 针对支持通道的类提供了 getChannel() 方法
@@ -44,22 +47,25 @@ import org.junit.Test;
  * 		
  * 2. 在 JDK 1.7 中的 NIO.2 针对各个通道提供了静态方法 open()
  * 3. 在 JDK 1.7 中的 NIO.2 的 Files 工具类的 newByteChannel()
- * 
+ *
  * 四、通道之间的数据传输
  * transferFrom()
  * transferTo()
- * 
+ *
+ * 视频7. 尚硅谷_NIO_分散读取与聚集写入
  * 五、分散(Scatter)与聚集(Gather)
  * 分散读取（Scattering Reads）：将通道中的数据分散到多个缓冲区中
  * 聚集写入（Gathering Writes）：将多个缓冲区中的数据聚集到通道中
- * 
+ *
+ * 视频8. 尚硅谷_NIO_字符集 Charset
  * 六、字符集：Charset
  * 编码：字符串 -> 字节数组
  * 解码：字节数组  -> 字符串
  * 
  */
 public class TestChannel {
-	
+
+	// 视频8. 尚硅谷_NIO_字符集 Charset
 	//字符集
 	@Test
 	public void test6() throws IOException{
@@ -88,15 +94,18 @@ public class TestChannel {
 		System.out.println(cBuf2.toString());
 		
 		System.out.println("------------------------------------------------------");
-		
-		Charset cs2 = Charset.forName("GBK");
+
+		// 按GBK编码. 按UTF-8解码, 会乱码
+		Charset cs2 = Charset.forName("UTF-8");
 		bBuf.flip();
 		CharBuffer cBuf3 = cs2.decode(bBuf);
 		System.out.println(cBuf3.toString());
 	}
-	
+
+	// 视频8. 尚硅谷_NIO_字符集 Charset
 	@Test
 	public void test5(){
+		// 打印看看nio支持多少种字符集
 		Map<String, Charset> map = Charset.availableCharsets();
 		
 		Set<Entry<String, Charset>> set = map.entrySet();
@@ -105,8 +114,9 @@ public class TestChannel {
 			System.out.println(entry.getKey() + "=" + entry.getValue());
 		}
 	}
-	
-	//分散和聚集
+
+	// 视频7. 尚硅谷_NIO_分散读取与聚集写入
+	// 分散和聚集, 以前是操作缓冲区, 这里是操作缓冲区数组
 	@Test
 	public void test4() throws IOException{
 		RandomAccessFile raf1 = new RandomAccessFile("1.txt", "rw");
@@ -125,7 +135,8 @@ public class TestChannel {
 		for (ByteBuffer byteBuffer : bufs) {
 			byteBuffer.flip();
 		}
-		
+
+		// 打印下看看是不是按顺序填满的
 		System.out.println(new String(bufs[0].array(), 0, bufs[0].limit()));
 		System.out.println("-----------------");
 		System.out.println(new String(bufs[1].array(), 0, bufs[1].limit()));
@@ -135,34 +146,41 @@ public class TestChannel {
 		FileChannel channel2 = raf2.getChannel();
 		
 		channel2.write(bufs);
+
+		// 最后关闭通道的代码没写
 	}
-	
-	//通道之间的数据传输(直接缓冲区)
+
+	// 视频6. 尚硅谷_NIO_通道的数据传输与内存映射文件
+	// 通道之间的数据传输(直接缓冲区), 代码量超级少
 	@Test
 	public void test3() throws IOException{
 		FileChannel inChannel = FileChannel.open(Paths.get("d:/1.mkv"), StandardOpenOption.READ);
 		FileChannel outChannel = FileChannel.open(Paths.get("d:/2.mkv"), StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.CREATE);
-		
+
+		// 这里transferTo和transferFrom的调用和传参正好是反的, 有点容易混
 //		inChannel.transferTo(0, inChannel.size(), outChannel);
 		outChannel.transferFrom(inChannel, 0, inChannel.size());
 		
 		inChannel.close();
 		outChannel.close();
 	}
-	
-	//使用直接缓冲区完成文件的复制(内存映射文件)
+
+	// 视频6. 尚硅谷_NIO_通道的数据传输与内存映射文件
+	// 使用直接缓冲区完成文件的复制(内存映射文件), 比非直接缓冲区的速度快, 但是可能存在垃圾回收没有及时释放, 导致内存占用过高
 	@Test
 	public void test2() throws IOException{//2127-1902-1777
 		long start = System.currentTimeMillis();
-		
+
+		// 这里用的open()获取通道, open()的参数是个可变参数
 		FileChannel inChannel = FileChannel.open(Paths.get("d:/1.mkv"), StandardOpenOption.READ);
+		// StandardOpenOption.CREATE 表示目标文件存在就覆盖, 不存在就创建, 还有一个如果存在会报错, 另外通道要支持读写, 与下面outMappedBuf一致
 		FileChannel outChannel = FileChannel.open(Paths.get("d:/2.mkv"), StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.CREATE);
 		
-		//内存映射文件
+		//内存映射文件(和allocateDirect()是一样的, 直接操作物理内存了)
 		MappedByteBuffer inMappedBuf = inChannel.map(MapMode.READ_ONLY, 0, inChannel.size());
 		MappedByteBuffer outMappedBuf = outChannel.map(MapMode.READ_WRITE, 0, inChannel.size());
 		
-		//直接对缓冲区进行数据的读写操作
+		//直接对缓冲区进行数据的读写操作, 因为直接对物理内存操作, 所以这里对通道的read和write直接省了
 		byte[] dst = new byte[inMappedBuf.limit()];
 		inMappedBuf.get(dst);
 		outMappedBuf.put(dst);
@@ -173,7 +191,8 @@ public class TestChannel {
 		long end = System.currentTimeMillis();
 		System.out.println("耗费时间为：" + (end - start));
 	}
-	
+
+	// 视频6. 尚硅谷_NIO_通道的数据传输与内存映射文件
 	//利用通道完成文件的复制（非直接缓冲区）
 	@Test
 	public void test1(){//10874-10953
@@ -187,7 +206,8 @@ public class TestChannel {
 		try {
 			fis = new FileInputStream("d:/1.mkv");
 			fos = new FileOutputStream("d:/2.mkv");
-			
+
+			// 用 getChannel() 获取一个写入的通道和传出的通道
 			inChannel = fis.getChannel();
 			outChannel = fos.getChannel();
 			
@@ -204,6 +224,7 @@ public class TestChannel {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
+			// 最后别忘了通道要关闭
 			if(outChannel != null){
 				try {
 					outChannel.close();
