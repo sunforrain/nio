@@ -38,4 +38,7 @@ java8 nio使用的总结
     向选择器注册通道：SelectableChannel.register(Selector sel, int ops)
     可以监听的事件类型（可使用SelectionKey 的四个常量表示）
     若注册时不止监听一个事件，则可以使用“位或”操作符连接
+### 12. NIO_DatagramChannel
+    DatagramChannel是一个能收发UDP包的通道
+### 13. NIO_Pipe 管道
     

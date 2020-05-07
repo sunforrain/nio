@@ -12,6 +12,10 @@ import java.util.Scanner;
 
 import org.junit.Test;
 
+/**
+ * 视频12. 尚硅谷_NIO_DatagramChannel
+ * Java NIO中的DatagramChannel是一个能收发UDP包的通道
+ */
 public class TestNonBlockingNIO2 {
 	
 	@Test
@@ -21,7 +25,8 @@ public class TestNonBlockingNIO2 {
 		dc.configureBlocking(false);
 		
 		ByteBuffer buf = ByteBuffer.allocate(1024);
-		
+
+		// 控制台输入内容, 但是这个要放在main里面运行, junit的话idea不能控制台输入
 		Scanner scan = new Scanner(System.in);
 		
 		while(scan.hasNext()){
