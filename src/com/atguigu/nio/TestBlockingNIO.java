@@ -39,6 +39,7 @@ public class TestBlockingNIO {
 	@Test
 	public void client() throws IOException{
 		//1. 获取通道
+        // SocketChannel 是一个连接到TCP网络套接字的通道
 		// 获取客户端网络传输通道
 		// InetSocketAddress 获取一个套接字, IP + 端口
 		SocketChannel sChannel = SocketChannel.open(new InetSocketAddress("127.0.0.1", 9898));
@@ -65,6 +66,7 @@ public class TestBlockingNIO {
 	@Test
 	public void server() throws IOException{
 		//1. 获取通道
+        // ServerSocketChannel 是一个可以监听新进来的TCP连接的通道
 		// 获取客户端网络传输通道
 		ServerSocketChannel ssChannel = ServerSocketChannel.open();
 		// 获取本地写数据的通道

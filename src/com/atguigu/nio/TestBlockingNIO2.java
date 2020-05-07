@@ -50,6 +50,7 @@ public class TestBlockingNIO2 {
 	//服务端
 	@Test
 	public void server() throws IOException{
+		// ServerSocketChannel 是一个可以监听新进来的TCP连接的通道
 		ServerSocketChannel ssChannel = ServerSocketChannel.open();
 		
 		FileChannel outChannel = FileChannel.open(Paths.get("2.jpg"), StandardOpenOption.WRITE, StandardOpenOption.CREATE);

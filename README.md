@@ -32,4 +32,10 @@ java8 nio使用的总结
       见课件的概念解释
 ### 10. NIO_阻塞式
     使用 NIO 完成网络通信, 两种, 有返回值和没返回值的, 仍然会阻塞的形式
+### 11. NIO_非阻塞式
+    使用 NIO 完成网络通信, 这次是非阻塞的
+    通过调用Selector.open() 方法创建一个Selector
+    向选择器注册通道：SelectableChannel.register(Selector sel, int ops)
+    可以监听的事件类型（可使用SelectionKey 的四个常量表示）
+    若注册时不止监听一个事件，则可以使用“位或”操作符连接
     
